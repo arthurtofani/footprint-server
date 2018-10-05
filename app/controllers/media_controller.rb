@@ -14,14 +14,14 @@ class MediaController < ApplicationController
   end
 
   def query
-    result = DigestService.new(params[:digests]).search
+    result = DigestService.new(params[:digests], params[:threshold]).search
     render json: result
   end
 
   def clear
-    DigestLocation.destroy_all
-    HashDigest.destroy_all
-    Medium.destroy_all
+    DigestLocation.delete_all
+    HashDigest.delete_all
+    Medium.delete_all
     head(200)
   end
 

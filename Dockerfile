@@ -6,6 +6,7 @@ RUN apk add --update \
   libc6-compat \
   libxml2-dev \
   libxslt-dev \
+  less \
   taglib-dev \
   tzdata \
   postgresql-dev \
@@ -13,3 +14,4 @@ RUN apk add --update \
 
 # Use libxml2, libxslt a packages from alpine for building nokogiri
 RUN bundle config build.nokogiri --use-system-libraries
+RUN export PAGER=more
