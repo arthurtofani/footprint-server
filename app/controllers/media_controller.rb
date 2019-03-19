@@ -1,3 +1,5 @@
+require 'histogram/array'
+
 class MediaController < ApplicationController
   before_action :set_medium, only: [:show, :update, :destroy]
   before_action :get_digests, only: [:create]
@@ -14,7 +16,7 @@ class MediaController < ApplicationController
   end
 
   def query
-    result = DigestService.new(params[:digests], params[:threshold]).search
+    result = DigestService.new(params[:digests]).search
     render json: result
   end
 
@@ -23,6 +25,22 @@ class MediaController < ApplicationController
     HashDigest.delete_all
     Medium.delete_all
     head(200)
+  end
+
+
+  def stats
+    sql = "SELECT t1.id, count(t2.id) as ct FROM hash_digests t1
+              INNER JOIN digest_locations t2 on
+              t2.hash_digest_id = t1.id group by t1.id
+              order by ct asc
+          "
+    data = ActiveRecord::Base.connection.execute(sql).map{|s| s["ct"]}
+    render  json: {
+              digest_histogram: data,
+              locations: DigestLocation.all.count,
+              digests: HashDigest.all.count,
+              media: Medium.all.count
+            }
   end
 
   # POST /media

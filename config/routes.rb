@@ -3,6 +3,7 @@ Rails.application.routes.draw do
     collection do
       post 'query'
       post 'clear'
+      get 'stats'
     end
   end
 end

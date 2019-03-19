@@ -27,7 +27,7 @@ ActiveRecord::Schema.define(version: 2018_09_29_223352) do
 
   create_table "hash_digests", force: :cascade do |t|
     t.string "digest", null: false
-    t.index ["digest"], name: "index_hash_digests_on_digest"
+    t.index ["digest"], name: "index_hash_digests_on_digest", unique: true
   end
 
   create_table "media", force: :cascade do |t|

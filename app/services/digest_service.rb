@@ -1,7 +1,6 @@
 class DigestService
-  def initialize(digests, avg_threshold)
+  def initialize(digests)
     @digests = digests.map{|s| s.split(':')}.map{|s| [s.first, s.last.to_i]}
-    @avg_threshold = avg_threshold || 1.0
   end
 
   def search
@@ -29,8 +28,7 @@ class DigestService
     end
     media_dict = Medium.where(id: locations.keys).pluck(:id, :path).to_h
 
-    min_count = (locations.map{|s| s[1].count}.sum/locations.count.to_f)*@avg_threshold.to_f
-    new_locations = locations.to_a #.select{|s| s[1].count > min_count}
+    new_locations = locations.to_a
                       .map{|s| [media_dict[s[0]], s[1]]}.to_h
 
     new_locations
