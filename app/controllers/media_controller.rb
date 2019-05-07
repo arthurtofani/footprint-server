@@ -3,49 +3,19 @@ require 'histogram/array'
 class MediaController < ApplicationController
   before_action :set_medium, only: [:show, :update, :destroy]
   before_action :get_digests, only: [:create]
+  before_action :get_bucket, only: [:create, :stats, :query, :clear, :index]
 
-  # GET /media
   def index
-    @media = Medium.all
+    @media = Medium.where(bucket: @bucket)
     render json: @media
   end
 
-  # GET /media/1
   def show
     render json: @medium
   end
 
-  def query
-    result = DigestService.new(params[:digests]).search
-    render json: result
-  end
-
-  def clear
-    DigestLocation.delete_all
-    HashDigest.delete_all
-    Medium.delete_all
-    head(200)
-  end
-
-
-  def stats
-    sql = "SELECT t1.id, count(t2.id) as ct FROM hash_digests t1
-              INNER JOIN digest_locations t2 on
-              t2.hash_digest_id = t1.id group by t1.id
-              order by ct asc
-          "
-    data = ActiveRecord::Base.connection.execute(sql).map{|s| s["ct"]}
-    render  json: {
-              digest_histogram: data,
-              locations: DigestLocation.all.count,
-              digests: HashDigest.all.count,
-              media: Medium.all.count
-            }
-  end
-
-  # POST /media
   def create
-    @medium = Medium.new(medium_params)
+    @medium = Medium.new(medium_params.merge(bucket: @bucket))
     if @medium.save
       @medium.add_digests(@digests) unless @digests.nil?
 
@@ -55,7 +25,6 @@ class MediaController < ApplicationController
     end
   end
 
-  # PATCH/PUT /media/1
   def update
     if @medium.update(medium_params)
       render json: @medium
@@ -64,7 +33,6 @@ class MediaController < ApplicationController
     end
   end
 
-  # DELETE /media/1
   def destroy
     @medium.destroy
   end
@@ -79,8 +47,12 @@ class MediaController < ApplicationController
       @digests = params[:digests]
     end
 
+    def get_bucket
+      @bucket = Bucket.find_by(slug: params[:bucket_id])
+    end
+
     # Only allow a trusted parameter "white list" through.
     def medium_params
-      {path: params[:path], metadata: params[:metadata]}
+      { path: params[:path], metadata: params[:metadata] }
     end
 end

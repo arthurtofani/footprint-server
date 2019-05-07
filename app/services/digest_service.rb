@@ -1,5 +1,6 @@
 class DigestService
-  def initialize(digests)
+  def initialize(bucket, digests)
+    @bucket = bucket
     @digests = digests.map{|s| s.split(':')}.map{|s| [s.first, s.last.to_i]}
   end
 
@@ -10,7 +11,7 @@ class DigestService
   def get_locations
     locations = {}
 
-    hash_digests = HashDigest.includes(:digest_locations).where(digest: @digests.map{|s| s[0]})
+    hash_digests = @bucket.hash_digests.includes(:digest_locations).where(digest: @digests.map{|s| s[0]})
     digests_dict = hash_digests.map{|s| [s.digest, s]}.to_h
 
     @digests.each do |digest_str, timestamp_str|
@@ -23,10 +24,10 @@ class DigestService
                                               location.time_offset_ms,
                                               timestamp_str.to_i
                                             ]
-      end
+        end
       end
     end
-    media_dict = Medium.where(id: locations.keys).pluck(:id, :path).to_h
+    media_dict = @bucket.media.where(id: locations.keys).pluck(:id, :path).to_h
 
     new_locations = locations.to_a
                       .map{|s| [media_dict[s[0]], s[1]]}.to_h

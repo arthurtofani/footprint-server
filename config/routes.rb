@@ -1,9 +1,11 @@
 Rails.application.routes.draw do
-  resources :media do
-    collection do
+  resources :buckets do
+    resources :media, shallow: true
+    member do
+      get 'stats'
       post 'query'
       post 'clear'
-      get 'stats'
     end
   end
+
 end
