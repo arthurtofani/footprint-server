@@ -3,6 +3,6 @@ class CreateHashDigests < ActiveRecord::Migration[5.2]
     create_table :hash_digests do |t|
       t.string :digest, null: false
     end
-    add_index(:hash_digests, :digest, using: 'btree', unique: true)
+    #add_index(:hash_digests, [:digest, :bucket_id], using: 'btree', unique: true)
   end
 end
