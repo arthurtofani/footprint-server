@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_05_05_224213) do
+ActiveRecord::Schema.define(version: 2019_05_08_004359) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -28,6 +28,7 @@ ActiveRecord::Schema.define(version: 2019_05_05_224213) do
     t.bigint "medium_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "tf"
     t.index ["hash_digest_id"], name: "index_digest_locations_on_hash_digest_id"
     t.index ["medium_id"], name: "index_digest_locations_on_medium_id"
   end
@@ -35,6 +36,7 @@ ActiveRecord::Schema.define(version: 2019_05_05_224213) do
   create_table "hash_digests", force: :cascade do |t|
     t.string "digest", null: false
     t.bigint "bucket_id"
+    t.integer "freq", default: 0
     t.index ["bucket_id"], name: "index_hash_digests_on_bucket_id"
     t.index ["digest", "bucket_id"], name: "index_hash_digests_on_digest_and_bucket_id", unique: true
   end
