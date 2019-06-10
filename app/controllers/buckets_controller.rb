@@ -11,8 +11,15 @@ class BucketsController < ApplicationController
   end
 
   def query
-    result = DigestService.new(@bucket, params[:digests]).search
+    result = DigestService.new(@bucket, params[:digests], params[:stopwords_threshold]).search
     render json: result
+  end
+
+  def integrity
+    bef = @bucket.hash_digests.where(freq: 0).count
+    TfIdfService.new(@bucket.media.first).update_digests_frequencies_in_documents if @bucket.media.count > 0
+    @bucket.update(amnt_digests: @bucket.hash_digests.count)
+    render json: {digests_with_zero_freq: @bucket.hash_digests.where(freq: 0).count, before: bef}
   end
 
   def clear
@@ -23,6 +30,7 @@ class BucketsController < ApplicationController
     where t2.bucket_id=#{@bucket.id})
     "
     data = ActiveRecord::Base.connection.execute(sql)
+    TempDigest.delete_all  # fix it
     @bucket.media.delete_all
     @bucket.hash_digests.delete_all
     head(200)

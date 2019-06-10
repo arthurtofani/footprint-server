@@ -3,7 +3,6 @@ class CreateMedia < ActiveRecord::Migration[5.2]
     create_table :media do |t|
       t.string :path
       t.jsonb :metadata
-
       t.timestamps
     end
   end

@@ -17,7 +17,9 @@ class MediaController < ApplicationController
   def create
     @medium = Medium.new(medium_params.merge(bucket: @bucket))
     if @medium.save
-      @medium.add_digests(@digests) unless @digests.nil?
+      TempDigest.import([:medium_id, :digest, :time_offset_ms], @digests.map{|a| a.split(":")}.map{|s, d|  [@medium.id, s, d.to_i]}, ignore: true, batch_size: 5000)
+      @medium.add_digests
+      #LoadMediaDigestsJob.perform_now(@medium.id) unless @digests.nil?
 
       render json: @medium, status: :ok, location: @medium
     else

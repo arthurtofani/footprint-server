@@ -7,4 +7,6 @@
 #   Character.create(name: 'Luke', movie: movies.first)
 Bucket.create(slug: 'default')
 Bucket.create(slug: 'echoprint')
-Bucket.create(slug: 'audfprint')
+Bucket.create(slug: 'audfprint_gtzan')
+Bucket.create(slug: 'audfprint_covers80')
+Bucket.create(slug: 'audfprint_fma_small')

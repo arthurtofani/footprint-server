@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_05_08_004359) do
+ActiveRecord::Schema.define(version: 2019_05_15_014544) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(version: 2019_05_08_004359) do
     t.string "slug"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "amnt_digests", default: 0
     t.index ["slug"], name: "index_buckets_on_slug"
   end
 
@@ -36,9 +37,11 @@ ActiveRecord::Schema.define(version: 2019_05_08_004359) do
   create_table "hash_digests", force: :cascade do |t|
     t.string "digest", null: false
     t.bigint "bucket_id"
-    t.integer "freq", default: 0
+    t.integer "freq", default: 1
     t.index ["bucket_id"], name: "index_hash_digests_on_bucket_id"
     t.index ["digest", "bucket_id"], name: "index_hash_digests_on_digest_and_bucket_id", unique: true
+    t.index ["digest"], name: "index_hash_digests_on_digest"
+    t.index ["freq"], name: "index_hash_digests_on_freq"
   end
 
   create_table "media", force: :cascade do |t|
@@ -50,8 +53,19 @@ ActiveRecord::Schema.define(version: 2019_05_08_004359) do
     t.index ["bucket_id"], name: "index_media_on_bucket_id"
   end
 
+  create_table "temp_digests", force: :cascade do |t|
+    t.bigint "medium_id"
+    t.string "digest"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "time_offset_ms"
+    t.index ["digest"], name: "index_temp_digests_on_digest"
+    t.index ["medium_id"], name: "index_temp_digests_on_medium_id"
+  end
+
   add_foreign_key "digest_locations", "hash_digests"
   add_foreign_key "digest_locations", "media"
   add_foreign_key "hash_digests", "buckets", on_delete: :cascade
   add_foreign_key "media", "buckets", on_delete: :cascade
+  add_foreign_key "temp_digests", "media"
 end
